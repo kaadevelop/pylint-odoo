@@ -19,6 +19,10 @@ MANIFEST_FILES = [
     '__terp__.py',
 ]
 
+README_FILES = [
+    'README.rst'
+]
+
 # Message description default
 DESC_DFLT = 'You can review guidelines here: ' + \
     'https://github.com/OCA/odoo-community.org/blob/master/website/' + \

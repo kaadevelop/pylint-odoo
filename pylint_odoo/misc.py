@@ -60,6 +60,8 @@ class PylintOdooChecker(BaseChecker):
     odoo_module_name = None
     manifest_file = None
     manifest_dict = None
+    readme_file = None
+    readme_urls = None
 
     def formatversion(self, string):
         valid_odoo_versions = self.linter._all_options[
@@ -81,6 +83,12 @@ class PylintOdooChecker(BaseChecker):
                     os.path.dirname(node_file), manifest_basename)
                 if os.path.isfile(manifest_file):
                     return manifest_file
+
+    def get_readmerst_file(self, node_file):
+        for readme in settings.README_FILES:
+            readme_file = os.path.join(os.path.dirname(node_file), readme)
+            if os.path.isfile(readme_file):
+                return readme_file
 
     def set_ext_files(self):
         """Create `self.ext_files` dictionary with {extension_file: [files]}
@@ -128,6 +136,16 @@ class PylintOdooChecker(BaseChecker):
         :param node: A astroid.scoped_nodes.Module
         :return: None
         """
+        readme_file = self.get_readmerst_file(node.file)
+        if readme_file:
+            self.readme_file = readme_file
+            self.odoo_node = node
+            self.odoo_module_name = os.path.basename(
+                os.path.dirname(self.odoo_node.file))
+            with open(self.readme_file) as f_readme:
+                for line in f_readme:
+                    urls = re.findall('https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+', line)
+                self.readme_urls = urls
         manifest_file = self.get_manifest_file(node.file)
         if manifest_file:
             self.manifest_file = manifest_file
