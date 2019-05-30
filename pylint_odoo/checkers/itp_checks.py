@@ -146,7 +146,11 @@ class ITPModuleChecker(misc.WrapperModuleChecker):
             if version != '':
                 manifest_odoo_version = '.'.join(version.split('.')[:2])
                 valid_odoo_version = self.linter._all_options[
-                    'valid_odoo_versions'].config.valid_odoo_versions[0].encode('utf-8')
+                'valid_odoo_versions'].config.valid_odoo_versions[0]
+                if sys.version_info[0] == 2:
+                    valid_odoo_version = valid_odoo_version.encode('utf-8')
+                else:
+                    valid_odoo_version = str(valid_odoo_version, 'utf-8')
                 if manifest_odoo_version != valid_odoo_version and installable:
                     print("Odoo version from ___manifest__.py is %s" % (manifest_odoo_version))
                     print("Expected odoo version is %s" % (valid_odoo_version))
@@ -219,10 +223,9 @@ class ITPModuleChecker(misc.WrapperModuleChecker):
             f = io.open(os.path.join(self.module_path, pyfile))
             content = f.read()
             f.close()
-            for rexp in ['self\.phantom_js', 'self\.browser_js', 'self\.url_open']: 
+            for rexp in ['self\.phantom_js', 'self\.browser_js', 'self\.url_open']:
                 match = re.findall(rexp, content)
                 if len(match):
                     return True
 
         return False
-
